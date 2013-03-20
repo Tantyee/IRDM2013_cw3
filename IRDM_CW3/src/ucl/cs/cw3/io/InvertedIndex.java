@@ -16,7 +16,6 @@ import org.apache.hadoop.io.Writable;
 public class InvertedIndex implements Writable {
 
 	private int termfreq;
-	private float prob;
 	private ArrayListWritable<PairOfStringInt> indexlist;
 
 	public InvertedIndex() {
@@ -39,13 +38,7 @@ public class InvertedIndex implements Writable {
 
 	
 
-	public float getProb() {
-		return prob;
-	}
-
-	public void setProb(float prob) {
-		this.prob = prob;
-	}
+	
 
 	public ArrayListWritable<PairOfStringInt> getIndexList() {
 		return indexlist;
@@ -65,7 +58,6 @@ public class InvertedIndex implements Writable {
 	public void readFields(DataInput in) throws IOException {
 
 		termfreq = in.readInt();
-		prob = in.readFloat();
 		indexlist = new ArrayListWritable<PairOfStringInt>();
 		indexlist.readFields(in);
 		
@@ -81,9 +73,6 @@ public class InvertedIndex implements Writable {
 	public void write(DataOutput out) throws IOException {
 
 		out.writeInt(termfreq);
-
-		out.writeFloat(prob);
-
 		indexlist.write(out);
 
 	}
@@ -94,10 +83,8 @@ public class InvertedIndex implements Writable {
 
 		s.append("{");
 		s.append(termfreq);
-
 		s.append(" ");
-		s.append(prob);
-		s.append(" ");
+		
 		
 
 		if (indexlist == null) {

@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
-
 import ucl.cs.cw3.io.PairOfStringInt;
 import ucl.cs.cw3.io.PairOfStrings;
 
@@ -18,6 +17,15 @@ public class BigramIndexMapper extends
 
 	private static PairOfStrings bigram = new PairOfStrings();
 	private static PairOfStringInt indexitem = new PairOfStringInt();
+	private static int indexType ;
+
+	
+	@Override
+	protected void setup(Context context) throws IOException,
+			InterruptedException {
+		indexType = context.getConfiguration().getInt("indextype",-1);
+		
+	}
 
 	@Override
 	protected void map(Object key, Text value, Context context)
@@ -42,15 +50,21 @@ public class BigramIndexMapper extends
 				if (j > terms.length - 1) {
 					return;
 				} else {
-					// set bigram key
-					bigram.set(terms[i], terms[j]);
-					// set docid
-					indexitem.set(key.toString(),1);
-					// emit the data
-					context.write(bigram, indexitem);
-					bigram.set(terms[i], "*");
-					context.write(bigram, indexitem);
+					if(indexType==0){
+						// set bigram key
+						bigram.set(terms[i], terms[j]);
+						// set docid
+						indexitem.set(key.toString(),1);
+						context.write(bigram, indexitem);
+					}else if(indexType == 1 ){
+						bigram.set(terms[i], "*");
+						context.write(bigram, indexitem);
+						
+					}
+					
 					i = j;
+					
+					
 				}
 			}
 
