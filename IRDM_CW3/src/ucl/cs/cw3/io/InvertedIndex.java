@@ -15,10 +15,14 @@ import org.apache.hadoop.io.Writable;
  */
 public class InvertedIndex implements Writable {
 
+	public static final int TYPE_BIGRAM = 0;
+	public static final int TYPE_BASE = 1;
 	private int termfreq;
+	private int type;
 	private ArrayListWritable<PairOfStringInt> indexlist;
 
 	public InvertedIndex() {
+		
 	}
 
 	/**
@@ -58,8 +62,12 @@ public class InvertedIndex implements Writable {
 	public void readFields(DataInput in) throws IOException {
 
 		termfreq = in.readInt();
-		indexlist = new ArrayListWritable<PairOfStringInt>();
-		indexlist.readFields(in);
+		type = in.readInt();
+		if(type==TYPE_BIGRAM){
+			indexlist = new ArrayListWritable<PairOfStringInt>();
+			indexlist.readFields(in);
+		}
+		
 		
 	}
 
@@ -73,7 +81,11 @@ public class InvertedIndex implements Writable {
 	public void write(DataOutput out) throws IOException {
 
 		out.writeInt(termfreq);
-		indexlist.write(out);
+		out.writeInt(type);
+		if(type==TYPE_BIGRAM){
+			indexlist.write(out);
+		}
+		
 
 	}
 
@@ -102,6 +114,14 @@ public class InvertedIndex implements Writable {
 		s.append(" }");
 
 		return s.toString();
+	}
+
+	public int getType() {
+		return type;
+	}
+
+	public void setType(int type) {
+		this.type = type;
 	}
 
 	

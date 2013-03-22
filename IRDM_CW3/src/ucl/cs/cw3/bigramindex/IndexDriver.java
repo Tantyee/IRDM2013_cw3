@@ -76,7 +76,7 @@ public class IndexDriver {
 		p1conf.set("input", args[0]);
 		p1conf.set("output",args[1]+"/bigram");
 		p1conf.setInt("numReducers", Integer.parseInt(args[2]));
-		p1conf.setInt("indextype", 0);
+		p1conf.setInt("indextype", InvertedIndex.TYPE_BIGRAM);
 
 		index(p1conf,true);
 		
@@ -84,7 +84,7 @@ public class IndexDriver {
 		p2conf.set("input", args[0]);
 		p2conf.set("output",args[1]+"/base");
 		p2conf.setInt("numReducers", Integer.parseInt(args[2]));
-		p2conf.setInt("indextype", 1);
+		p2conf.setInt("indextype", InvertedIndex.TYPE_BASE);
 		index(p2conf,true);
 		
 	

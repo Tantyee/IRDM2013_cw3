@@ -25,7 +25,7 @@
 	<classpathentry kind="lib" path="lib/hadoop-ant-1.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-capacity-scheduler-1.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-client-1.0.4.jar"/>
-	<classpathentry kind="lib" path="lib/hadoop-core-1.0.4.jar"/>
+	<classpathentry kind="lib" path="lib/hadoop-core-1.0.4.jar" sourcepath="/Users/apple/hadoop-1.0.4/src"/>
 	<classpathentry kind="lib" path="lib/hadoop-examples-1.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-fairscheduler-1.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-minicluster-1.0.4.jar"/>

@@ -38,16 +38,17 @@ public class BigramIndexReducer extends
 	protected void reduce(PairOfStrings key, Iterable<PairOfStringInt> value,
 			Context context) throws IOException, InterruptedException {
 		int termfreq = 0;
-		if (indexType == 1) { // if is a (aaa,*) bigram
+		if (indexType == InvertedIndex.TYPE_BASE) { // if is a (aaa,*) bigram
 			for (PairOfStringInt v : value) {
 				termfreq += v.getRightElement();
 			}
 			invertedindex.setTermfreq(termfreq);
+			invertedindex.setType(indexType);
 			// don't generate indexlist
 			invertedindex.setIndex(null);
 			context.write(key, invertedindex);
 
-		} else if(indexType == 0){
+		} else if(indexType == InvertedIndex.TYPE_BIGRAM){
 			Map<String, Integer> indexitems = new HashMap<String, Integer>();
 			for (PairOfStringInt v : value) {
 				if (!indexitems.containsKey(v.getLeftElement())) {
@@ -62,7 +63,7 @@ public class BigramIndexReducer extends
 			}
 
 			invertedindex.setTermfreq(termfreq);
-
+			invertedindex.setType(indexType);
 			ArrayListWritable<PairOfStringInt> indexlist = new ArrayListWritable<PairOfStringInt>();
 			for (Entry<String, Integer> e : indexitems.entrySet()) {
 				indexlist.add(new PairOfStringInt(e.getKey(), e.getValue()));
