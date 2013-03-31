@@ -5,6 +5,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.log4j.Logger;
@@ -42,6 +43,7 @@ public class IndexDriver {
 		job.setCombinerClass(BigramIndexCombiner.class);
 		job.setMapOutputKeyClass(PairOfStrings.class);
 		job.setMapOutputValueClass(PairOfStringInt.class);
+		job.setInputFormatClass(KeyValueTextInputFormat.class);
 		job.setOutputKeyClass(PairOfStrings.class);
 		job.setOutputValueClass(InvertedIndex.class);
 
@@ -56,7 +58,7 @@ public class IndexDriver {
 		FileOutputFormat.setOutputPath(job, new Path(conf.get("output")));
 
 		Path outputDir = new Path(conf.get("output"));
-		FileSystem.get(conf).delete(outputDir, true);
+		FileSystem.get(outputDir.toUri(),conf).delete(outputDir, true);
 
 		long startTime = System.currentTimeMillis();
 		job.waitForCompletion(true);
