@@ -23,7 +23,7 @@ public class SentenceCollection extends GenericSequenceCollection implements
 		FileSystem fs = this.getFileSystem();
 		try {
 			for(FileStatus f : fs.listStatus(getCollectionPath())){
-				if(f.getPath().getName().startsWith(".")){
+				if(f.getPath().getName().startsWith(".")||f.getPath().getName().startsWith("_")){
 					
 					continue;
 				}

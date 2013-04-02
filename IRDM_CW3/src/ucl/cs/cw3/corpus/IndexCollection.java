@@ -20,7 +20,7 @@ public class IndexCollection extends GenericSequenceCollection implements
 		FileSystem fs = this.getFileSystem();
 		try {
 			for (FileStatus f : fs.listStatus(getCollectionPath())) {
-				if(f.getPath().getName().startsWith(".")){
+				if(f.getPath().getName().startsWith(".")||f.getPath().getName().startsWith("_")){
 					continue;
 				}
 				SequenceFile.Reader reader = new SequenceFile.Reader(
@@ -47,5 +47,7 @@ public class IndexCollection extends GenericSequenceCollection implements
 		return null;
 		
 	}
-
+	public InvertedIndex findValueByKey(String key){
+		return findValueByKey(new PairOfStrings(key,"*"));
+	}
 }

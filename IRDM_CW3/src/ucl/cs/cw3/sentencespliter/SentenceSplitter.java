@@ -67,7 +67,7 @@ public class SentenceSplitter {
 			StringBuilder sb = new StringBuilder();
 			String line;
 			while ((line = input.readLine()) != null) {
-				sb.append(line);
+				sb.append(" "+line);
 			}
 
 			String[] sentences = sentenceDetector.sentDetect(sb.toString());
@@ -85,7 +85,7 @@ public class SentenceSplitter {
 
 	public static void printUsage() {
 		System.out
-				.println("usage: [input-path, output-path, sentence-detector-model-path]");
+				.println("usage: [input-path, output-path]");
 		System.exit(-1);
 	}
 }

@@ -1,86 +1,96 @@
 package ucl.cs.cw3.template;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
-
+import ucl.cs.cw3.corpus.IndexCollection;
+import ucl.cs.cw3.corpus.Sentence;
 import ucl.cs.cw3.io.InvertedIndex;
 import ucl.cs.cw3.io.PairOfStrings;
-import ucl.cs.cw3.utils.CW3Tools;
 
 public class Template {
+	
+	private final static float LAMDA = 0.7f;
 
-	private String originalSentence;
-	private String generatedSentence;
-	private String inputSentence;
-	public void setGeneratedSentence(String generatedSentence) {
-		this.generatedSentence = generatedSentence;
-	}
-
+	private Sentence originalSentence;
+	private Sentence generatedSentence;
+	private Sentence inputSentence;
 	private String bigramPath;
-
 	private String basePath;
+	private IndexCollection bigramcollection,basecollection;
+	private double distinctbigramNum; // the total number of distinct bigram , used for interpolate smoothing.
 
-	public Template(String sentence, String bigramPath, String basePath) {
-		setOriginalSentence(sentence);
+	public Template(Sentence sentence, String bigramPath, String basePath) {
+		originalSentence = sentence;
+		generatedSentence = new Sentence("",sentence.randomTerm());
 		setBigramPath(bigramPath);
 		setBasePath(basePath);
-
+		bigramcollection = new IndexCollection(bigramPath);
+		basecollection = new IndexCollection(basePath);
+		distinctbigramNum = basecollection.findValueByKey(new PairOfStrings("*","*")).getTermfreq()*1.0;
 	}
 
-	public void rndStr() {
+	
+	
 
-		String[] tokens = originalSentence.split("[^a-zA-Z0-9']");
-		String result = "";
-		Collections.shuffle(Arrays.asList(tokens));
-		for (int i = 0; i < tokens.length; i++) {
-			result = result + " " + tokens[i].toString();
+	
+
+	public double calPerplexity(Sentence sentence) {
+		if(null==sentence || "".equals(sentence.getContent())){
+			System.out.println("empty sentence!");
+			return -1.0;
 		}
-		this.generatedSentence = result;
-	}
-
-	public float getScore() throws Exception {
-		if (null == inputSentence || "".equals(inputSentence)) {
-			return 0;
-		} else {
-			Iterator<PairOfStrings> io = CW3Tools
-					.bigramGenerator(originalSentence);
-			Iterator<PairOfStrings> ig = CW3Tools
-					.bigramGenerator(inputSentence);
-
-			return calProbability(ig)/calProbability(io);
-
-		}
-	}
-
-	public float calProbability(Iterator<PairOfStrings> i) {
-		float originalscore = 1.0f;
+		Iterator<PairOfStrings> i = sentence.getBigram();
+		double score = 1.0;
+		int count = 0;
+		InvertedIndex bigramindex,baseindex;
 		while (i.hasNext()) {
-			try {
+				count++;
 				PairOfStrings bigram = i.next();
-				InvertedIndex temp;
-				temp = (InvertedIndex) CW3Tools.findValueByKey(bigram,
-						getBigramPath());
-				if (!(null == temp)) {
-					originalscore = originalscore * temp.getTermfreq();
-				}else{
-					System.out.println("nullbigram");
+				bigramindex = bigramcollection.findValueByKey(bigram);
+				baseindex = basecollection.findValueByKey(bigram.getLeftElement());
+				int bigramNum = 0 , baseNum = 0;
+				if(null!=bigramindex){
+					bigramNum = bigramindex.getTermfreq();
 				}
-
-				bigram.set(bigram.getLeftElement(), "*");
-				temp = (InvertedIndex) CW3Tools.findValueByKey(bigram,
-						getBasePath());
-				originalscore = originalscore / temp.getTermfreq();
-			} catch (Exception e) {
-
-				e.printStackTrace();
-			}
-
+				if(null!=baseindex){
+					baseNum = baseindex.getTermfreq();
+				}
+				//linear interpolate smoothing
+				double prob = LAMDA*bigramNum/baseNum+(1-LAMDA)*baseNum/distinctbigramNum;
+				score = score/prob;
+				
 		}
-		return originalscore;
+		score = Math.pow(score, 1.0/count);
+		
+		return score;
 	}
+
+	
+
+
+
+	
+	
+	/**
+	 * @return the bigramcollection
+	 */
+	public IndexCollection getBigramcollection() {
+		return bigramcollection;
+	}
+
+
+
+
+
+	/**
+	 * @return the basecollection
+	 */
+	public IndexCollection getBasecollection() {
+		return basecollection;
+	}
+
+
+
+
 
 	public String getBigramPath() {
 		return bigramPath;
@@ -98,40 +108,42 @@ public class Template {
 		this.basePath = basePath;
 	}
 
-	public String getGeneratedSentence() {
-		return generatedSentence;
-	}
+	
 
-	public String getOriginalSentence() {
+	public Sentence getOriginalSentence() {
 		return originalSentence;
 	}
 
-	public void setOriginalSentence(String originalSentence) {
+
+
+	public void setOriginalSentence(Sentence originalSentence) {
 		this.originalSentence = originalSentence;
 	}
 
-	public static void main(String[] args) throws Exception {
-		Template t = new Template("I believe I have said too much",
-				"data/output/bigram", "data/output/base");
-		t.rndStr();
-		System.out.println("randomized  sentence:");
-		System.out.println(t.getGeneratedSentence());
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in)); 
-		String str = null; 
-		System.out.println("Enter your sentence:"); 
-		str = br.readLine(); 
-		t.setInputSentence(str);
-		
-		
-		System.out.println("Your sentence got "+t.getScore()*100+"% mark");
+
+
+	public Sentence getGeneratedSentence() {
+		return generatedSentence;
 	}
 
-	public String getInputSentence() {
+
+
+	public void setGeneratedSentence(Sentence generatedSentence) {
+		this.generatedSentence = generatedSentence;
+	}
+
+
+
+	public Sentence getInputSentence() {
 		return inputSentence;
 	}
 
-	public void setInputSentence(String inputSentence) {
+
+
+	public void setInputSentence(Sentence inputSentence) {
 		this.inputSentence = inputSentence;
 	}
+
+	
 
 }

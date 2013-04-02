@@ -51,12 +51,17 @@ public class BigramIndexMapper extends
 					return;
 				} else {
 					if(indexType==0){
+						indexitem.set(key.toString(),1);
+						bigram.set(terms[i], "*");
+						context.write(bigram, indexitem);
 						// set bigram key
 						bigram.set(terms[i], terms[j]);
 						// set docid
-						indexitem.set(key.toString(),1);
+						
 						context.write(bigram, indexitem);
 					}else if(indexType == 1 ){
+						bigram.set("*", "*");
+						context.write(bigram, indexitem);
 						bigram.set(terms[i], "*");
 						context.write(bigram, indexitem);
 						
